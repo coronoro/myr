@@ -1,0 +1,29 @@
+{
+  "name": "myr",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host --https",
+    "qr": "npx localview --port 5173",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@techstark/opencv-js": "^4.7.0-release.1",
+    "easy-ts-camera": "^1.2.3",
+    "localview": "^0.0.9",
+    "tesseract.js": "^4.1.1",
+    "vue": "^3.2.45"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-basic-ssl": "^1.0.1",
+    "@vitejs/plugin-vue": "^4.0.0",
+    "autoprefixer": "^10.4.14",
+    "naive-ui": "^2.34.4",
+    "postcss": "^8.4.21",
+    "sass": "^1.59.2",
+    "tailwindcss": "^3.2.7",
+    "vite": "^4.1.0"
+  }
+}
