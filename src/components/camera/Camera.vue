@@ -13,8 +13,25 @@
           class="snap h-20 w-20 bg-gray-400 rounded-full border-gray-600 border-4"
           @click="snap">
       </button>
-
     </div>
+    <n-modal v-model:show="showModal">
+      <n-card
+          style="width: 600px"
+          title="Modal"
+          :bordered="false"
+          size="huge"
+          role="dialog"
+          aria-modal="true"
+      >
+        <template #header-extra>
+          Oops!
+        </template>
+        {{ ocrText }}
+        <template #footer>
+          Footer
+        </template>
+      </n-card>
+    </n-modal>
   </div>
 </template>
 
@@ -24,7 +41,7 @@ import {Camera, CameraUtils, MediaConstraints} from 'easy-ts-camera';
 import CameraBuilder from "easy-ts-camera";
 import {getContours} from "../../utils/opencv-util";
 import Tesseract from "tesseract.js";
-
+import {NModal, NCard} from 'naive-ui'
 
 export interface CameraProps {
   showVideo: boolean
@@ -41,16 +58,15 @@ const canvasRef: Ref<HTMLCanvasElement | null> = ref(null)
 const cvCanvas: Ref<HTMLCanvasElement | undefined> = ref(undefined)
 
 const cameraRef = ref<Camera | null>(null)
-const snaped = ref(false)
+const ocrText = ref('')
+const showModal = ref(false)
 
 const cardRegex = /ab+c/;
 
 const snap = () => {
   if (cameraRef.value) {
     const camera = cameraRef.value
-    debugger
     const snapCanvas = camera?.snap(false)
-    snaped.value = true
     getContours(snapCanvas, cvCanvas.value)
     ocr()
   }
@@ -62,11 +78,9 @@ const ocr = () => {
       console.log(log)
     }
   }).then(result => {
-    const ocrText = result.data.text
-    console.log(ocrText)
-
+    ocrText.value = result.data.text
+    showModal.value = true
     // https://api.scryfall.com/cards/{set}/{id}
-    alert(ocrText)
   })
 }
 

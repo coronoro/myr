@@ -63,7 +63,13 @@ export function getContours(canvas: HTMLCanvasElement, output?: HTMLCanvasElemen
     //     }
     // }
 
+    // Calculate the lower half of the cropped image
+    let croppedHeight = cropped.rows;
+    let lowerHalf = cropped.roi(new cv.Rect(0, croppedHeight / 2, cropped.cols, croppedHeight / 2));
+
+
     if (output) {
-        cv.imshow(output, cropped);
+        // cv.imshow(output, cropped);
+        cv.imshow(output, lowerHalf);
     }
 }
