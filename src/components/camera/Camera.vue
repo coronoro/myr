@@ -1,21 +1,18 @@
 <template>
   <div class="camera h-full flex-col bg-emerald-700">
-    <div class="video-wrapper" v-show="showVideo">
-      video
+    <div class="grow h-0" v-show="showVideo">
       <video class="video" autoplay playsinline ref="video"></video>
     </div>
     <!-- we need the canvas for their data but we wont show them-->
     <div class="invisible h-0">
-      canvas
       <canvas class="canvas h-full" ref="canvasRef"></canvas>
       <canvas class="canvas h-full " ref="cvCanvas"></canvas>
     </div>
-    <div class="button-bar flex w-full bg-amber-200 items-center">
-      <div
-          class="snap h-16 w-16 bg-amber-500"
+    <div class="button-bar flex w-full items-center justify-center z-10 pb-20">
+      <button
+          class="snap h-20 w-20 bg-gray-400 rounded-full border-gray-600 border-4"
           @click="snap">
-        SNAP
-      </div>
+      </button>
 
     </div>
   </div>
@@ -46,6 +43,8 @@ const cvCanvas: Ref<HTMLCanvasElement | undefined> = ref(undefined)
 const cameraRef = ref<Camera | null>(null)
 const snaped = ref(false)
 
+const cardRegex = /ab+c/;
+
 const snap = () => {
   if (cameraRef.value) {
     const camera = cameraRef.value
@@ -63,7 +62,11 @@ const ocr = () => {
       console.log(log)
     }
   }).then(result => {
-    alert(result.data.text)
+    const ocrText = result.data.text
+    console.log(ocrText)
+
+    // https://api.scryfall.com/cards/{set}/{id}
+    alert(ocrText)
   })
 }
 
@@ -99,10 +102,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
-.video-wrapper {
-  height: 100%;
-}
 
 .camera {
   //overflow: hidden;

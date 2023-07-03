@@ -1,5 +1,5 @@
 <template>
-  <div class="app flex h-full flex-col">
+  <div class="app flex h-screen flex-col">
     <Camera></Camera>
   </div>
 </template>
@@ -10,9 +10,9 @@ import Camera from "./components/camera/Camera.vue";
 
 <style lang="scss" scoped>
 .app {
-  //overflow: hidden;
-  //display: flex;
-  //height: 100vh;
+  overflow: hidden;
+  display: flex;
+  height: 100vh;
 
 }
 
