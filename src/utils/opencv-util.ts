@@ -1,7 +1,21 @@
 import cv, {Mat, Size} from "@techstark/opencv-js";
 import Tesseract from "tesseract.js";
 
-export function getContours(canvas: HTMLCanvasElement, output?: HTMLCanvasElement) {
+export function cropIdentifier(input: HTMLCanvasElement, output?: HTMLCanvasElement){
+    let img = cv.imread(input);
+    const inputHeight = img.rows;
+    const inputWidth = img.cols;
+    const heightFractal = inputHeight / 8
+
+    let lowerHalf = img.roi(new cv.Rect(0, heightFractal, inputWidth, heightFractal));
+    if (output) {
+        cv.imshow(output, lowerHalf);
+    }
+    img.delete()
+    lowerHalf.delete()
+}
+
+export function cropCard(canvas: HTMLCanvasElement, output?: HTMLCanvasElement) {
     let img = cv.imread(canvas);
 
     let gray = new cv.Mat();
@@ -44,8 +58,7 @@ export function getContours(canvas: HTMLCanvasElement, output?: HTMLCanvasElemen
     }
 
     // Crop the card from the original image using the contour
-    const maxContour = contours.get(maxContourIdx)
-    var card = cv.boundingRect(maxContour);
+    var card = cv.boundingRect(contours.get(maxContourIdx));
     var cropped = img.roi(card);
 
     // use to debug contours
@@ -63,13 +76,15 @@ export function getContours(canvas: HTMLCanvasElement, output?: HTMLCanvasElemen
     //     }
     // }
 
-    // Calculate the lower half of the cropped image
-    let croppedHeight = cropped.rows;
-    let lowerHalf = cropped.roi(new cv.Rect(0, croppedHeight / 2, cropped.cols, croppedHeight / 2));
-
-
     if (output) {
-        // cv.imshow(output, cropped);
-        cv.imshow(output, lowerHalf);
+        cv.imshow(output, cropped);
     }
+    // clean memory
+    img.delete()
+    gray.delete()
+    blur.delete()
+    thresh.delete()
+    contours.delete()
+    hierarchies.delete()
+    cropped.delete()
 }

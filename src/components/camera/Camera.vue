@@ -6,7 +6,9 @@
     <!-- we need the canvas for their data but we wont show them-->
     <div class="invisible h-0">
       <canvas class="canvas h-full" ref="canvasRef"></canvas>
-      <canvas class="canvas h-full " ref="cvCanvas"></canvas>
+      <canvas class="canvas h-full " ref="cardCanvas"></canvas>
+      <canvas class="canvas h-full " ref="cardNameCanvas"></canvas>
+      <canvas class="canvas h-full " ref="lowerLeftCanvas"></canvas>
     </div>
     <div class="button-bar flex w-full items-center justify-center z-10 pb-20">
       <button
@@ -24,9 +26,11 @@
           aria-modal="true"
       >
         <template #header-extra>
-          Oops!
         </template>
-        {{ ocrText }}
+          <div>
+            <canvas class="canvas h-full " ref="debugCanvas"></canvas>
+            {{ ocrText }}
+          </div>
         <template #footer>
           Footer
         </template>
@@ -39,7 +43,7 @@
 import {onMounted, Ref, ref} from "vue";
 import {Camera, CameraUtils, MediaConstraints} from 'easy-ts-camera';
 import CameraBuilder from "easy-ts-camera";
-import {getContours} from "../../utils/opencv-util";
+import {cropCard, cropIdentifier} from "../../utils/opencv-util";
 import Tesseract from "tesseract.js";
 import {NModal, NCard} from 'naive-ui'
 
@@ -54,8 +58,20 @@ const props = withDefaults(defineProps<CameraProps>(), {
 const emit = defineEmits(['snap', 'delete'])
 
 const video: Ref<HTMLVideoElement | null> = ref(null)
-const canvasRef: Ref<HTMLCanvasElement | null> = ref(null)
-const cvCanvas: Ref<HTMLCanvasElement | undefined> = ref(undefined)
+//canvas used to save the image data of the video element
+const canvasRef: Ref<HTMLCanvasElement | undefined> = ref(undefined)
+
+const cardCanvas: Ref<HTMLCanvasElement | undefined> = ref(undefined)
+
+// canvas that should contain only the top part of the card where the name should be located
+const cardNameCanvas: Ref<HTMLCanvasElement | undefined> = ref(undefined)
+
+// canvas that should contain only the lower left part of the card where the identifier should be located
+const lowerLeftCanvas: Ref<HTMLCanvasElement | undefined> = ref(undefined)
+
+const debugCanvas: Ref<HTMLCanvasElement | undefined> = ref(undefined)
+
+const text = ref('Hi')
 
 const cameraRef = ref<Camera | null>(null)
 const ocrText = ref('')
@@ -64,22 +80,36 @@ const showModal = ref(false)
 const cardRegex = /ab+c/;
 
 const snap = () => {
+  text.value = 'snaped!'
   if (cameraRef.value) {
     const camera = cameraRef.value
     const snapCanvas = camera?.snap(false)
-    getContours(snapCanvas, cvCanvas.value)
-    ocr()
+    if (cardCanvas.value){
+      cropCard(snapCanvas, cardCanvas.value)
+      cropIdentifier(cardCanvas.value, lowerLeftCanvas.value)
+      ocr()
+    }
   }
 }
 
 const ocr = () => {
-  Tesseract.recognize(cvCanvas.value?.toDataURL(), 'eng', {
+  Tesseract.recognize(lowerLeftCanvas.value?.toDataURL(), 'eng', {
     logger: log => {
       console.log(log)
     }
   }).then(result => {
     ocrText.value = result.data.text
     showModal.value = true
+    //grab the context from your destination canvas
+    if (debugCanvas.value){
+      var destCtx = debugCanvas.value.getContext('2d');
+      if (destCtx && lowerLeftCanvas.value)
+        //call its drawImage() function passing it the source canvas directly
+        destCtx.drawImage(lowerLeftCanvas.value, 0, 0);
+
+    }
+
+
     // https://api.scryfall.com/cards/{set}/{id}
   })
 }
